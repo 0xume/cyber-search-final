@@ -74,6 +74,7 @@ under `users/{uid}`, so they follow you across devices. If Firebase can't load
 stars + PDF.
 
 **To point this at your own Firebase project** (the committed one is a demo):
+
 1. Firebase console → create a project → add a Web app; copy the config into
    `window.FIREBASE_CONFIG` near the bottom of `site/index.html`. (Web API keys
    are not secret — they're meant to ship in client code.)
@@ -128,6 +129,3 @@ The committed `site/index.json` is a full production build (6,670 entries from
   manuals, the OpenSSH manual, tcpdump docs, and gobuster. The full, resolvable
   list ships in the `sources` array of `site/index.json`. See the "Copyright
   posture" section of `indexer/README.md`.
-- **AI assistance** — some code and documentation in this project were drafted
-  and reviewed with the help of an AI assistant (Claude). All output was
-  reviewed, tested, and edited by the team.
