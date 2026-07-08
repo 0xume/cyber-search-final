@@ -946,7 +946,6 @@
         margin-top: 12px;
         line-height: 1.5;
       }
-      /* ── accounts, stars, PDF (added) ── */
       :root {
         --star: #f5c451;
         --star-soft: rgba(245, 196, 81, 0.13);
@@ -997,7 +996,6 @@
         }
       }
 
-      /* star on cards */
       .r-right {
         display: flex;
         align-items: center;
@@ -1033,7 +1031,6 @@
         height: 15px;
       }
 
-      /* auth modal */
       .win.auth-win {
         max-width: 380px;
       }
@@ -1155,7 +1152,6 @@
         text-decoration: underline;
       }
 
-      /* toast */
       #toast {
         position: fixed;
         left: 50%;
@@ -1189,7 +1185,11 @@
           <button class="tog" id="savedToggle" title="Show only saved commands">
             ★ saved <span id="savedCount">0</span>
           </button>
-          <button class="tog" id="pdfBtn" title="Download saved commands as a PDF cheat sheet">
+          <button
+            class="tog"
+            id="pdfBtn"
+            title="Download saved commands as a PDF cheat sheet"
+          >
             ⤓ PDF
           </button>
           <button class="tog" id="themeToggle" aria-label="Toggle theme">
@@ -1331,30 +1331,64 @@
           <span class="win-kind" id="authKind">account</span>
           <span class="win-title" id="authTitle">Welcome back</span>
           <button class="win-close" id="authClose" aria-label="Close">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
         <div class="win-body auth-body">
-          <p class="auth-sub" id="authSub">Sign in to reach your saved commands.</p>
+          <p class="auth-sub" id="authSub">
+            Sign in to reach your saved commands.
+          </p>
           <button class="btn-google" id="googleBtn">
             <svg width="17" height="17" viewBox="0 0 48 48">
-              <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.1-3.8 6.6-9.4 6.6-16.1z"/>
-              <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.5 46 24 46z"/>
-              <path fill="#FBBC05" d="M11.8 28.3c-.4-1.3-.7-2.7-.7-4.3s.3-3 .7-4.3v-5.7H4.5C3 17 2 20.4 2 24s1 7 2.5 10z"/>
-              <path fill="#EA4335" d="M24 10.7c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.1 29.9 2 24 2 15.5 2 8.1 6.9 4.5 14l7.3 5.7c1.7-5.2 6.5-9 12.2-9z"/>
+              <path
+                fill="#4285F4"
+                d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.1-3.8 6.6-9.4 6.6-16.1z"
+              />
+              <path
+                fill="#34A853"
+                d="M24 46c5.9 0 10.9-2 14.5-5.3l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.5 46 24 46z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M11.8 28.3c-.4-1.3-.7-2.7-.7-4.3s.3-3 .7-4.3v-5.7H4.5C3 17 2 20.4 2 24s1 7 2.5 10z"
+              />
+              <path
+                fill="#EA4335"
+                d="M24 10.7c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.1 29.9 2 24 2 15.5 2 8.1 6.9 4.5 14l7.3 5.7c1.7-5.2 6.5-9 12.2-9z"
+              />
             </svg>
             Continue with Google
           </button>
           <div class="auth-or"><span>or</span></div>
           <label class="auth-field">
             <span>Email</span>
-            <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+            <input
+              id="authEmail"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+            />
           </label>
           <label class="auth-field">
             <span>Password</span>
-            <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+            <input
+              id="authPass"
+              type="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+            />
           </label>
           <p class="auth-err" id="authErr"></p>
           <button class="auth-submit" id="authSubmit">Sign in</button>
@@ -1367,14 +1401,11 @@
     </div>
 
     <div id="toast"></div>
-
-    <!-- Fuse.js v7.0.0 (MIT) — vendored locally so the site runs fully offline.
-         Falls back to the CDN only if the local file is missing. -->
     <script src="./fuse.min.js"></script>
     <script>
       window.Fuse ||
         document.write(
-          '<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"><\/script>'
+          '<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"><\/script>',
         );
     </script>
     <script>
@@ -1778,8 +1809,6 @@
         const cmds = S.all.filter((e) => e.kind === "command");
         if (cmds.length) explain(cmds[Math.floor(Math.random() * cmds.length)]);
       }
-
-      /* ── saved commands (local-first; syncs to Firebase when signed in) ── */
       const Bookmarks = (() => {
         const KEY = "cs.saved";
         let set = new Set();
@@ -1826,7 +1855,6 @@
         toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
       }
 
-      /* ── account UI (Firebase-backed; degrades to local-only) ── */
       function renderAccount() {
         const host = $("#acct");
         host.innerHTML = "";
@@ -1853,7 +1881,6 @@
         }
       }
 
-      /* ── auth modal ── */
       let authMode = "in";
       function openAuth() {
         authMode = "in";
@@ -1901,7 +1928,10 @@
             ? auth.signUp(email, pass)
             : auth.signIn(email, pass));
         } catch (err) {
-          $("#authErr").textContent = ((err && err.message) || "Authentication failed")
+          $("#authErr").textContent = (
+            (err && err.message) ||
+            "Authentication failed"
+          )
             .replace("Firebase: ", "")
             .replace(/\(auth.*\)\.?/, "")
             .trim();
@@ -1919,13 +1949,15 @@
         try {
           await auth.signInGoogle();
         } catch (err) {
-          $("#authErr").textContent = ((err && err.message) || "Authentication failed")
+          $("#authErr").textContent = (
+            (err && err.message) ||
+            "Authentication failed"
+          )
             .replace("Firebase: ", "")
             .trim();
         }
       }
 
-      /* ── PDF cheat sheet (client-side via jsPDF) ── */
       function exportPDF() {
         const list = Bookmarks.list()
           .map((id) => S.all.find((e) => e.id === id))
@@ -1974,7 +2006,10 @@
         doc.text("saved commands cheat sheet", M, 58);
         doc.setTextColor(150, 162, 180);
         doc.text(
-          new Date().toISOString().slice(0, 10) + "  ·  " + list.length + " items",
+          new Date().toISOString().slice(0, 10) +
+            "  ·  " +
+            list.length +
+            " items",
           W - M,
           58,
           { align: "right" },
@@ -2005,10 +2040,12 @@
                 color: GREY,
               });
             (c.flags || []).slice(0, 6).forEach((f) => {
-              write(
-                (f.flag + (f.arg ? " " + f.arg : "")) + "  —  " + f.meaning,
-                { font: "courier", size: 9, color: DARK, x: M + 12 },
-              );
+              write(f.flag + (f.arg ? " " + f.arg : "") + "  —  " + f.meaning, {
+                font: "courier",
+                size: 9,
+                color: DARK,
+                x: M + 12,
+              });
             });
             const ex = (c.examples || [])[0];
             if (ex)
@@ -2071,7 +2108,6 @@
             renderResults();
           });
 
-          // saved / account / auth / pdf
           updateSavedCount();
           renderAccount();
           $("#savedToggle").addEventListener("click", () => {
@@ -2150,9 +2186,6 @@
         root.classList.toggle("day", day);
         $("#themeLabel").textContent = day ? "night" : "day";
       };
-
-      // Registered synchronously so a returning (already-signed-in) user is
-      // caught even if Firebase resolves before the index finishes loading.
       window.addEventListener("cs-auth", () => {
         renderAccount();
         if (window.CyberAuth && window.CyberAuth.user) {
@@ -2163,22 +2196,15 @@
 
       main();
     </script>
-
-    <!-- jsPDF (MIT) — vendored locally so PDF export works offline. -->
     <script src="./jspdf.umd.min.js"></script>
-
-    <!--
-      Firebase config. These web keys are NOT secret — they identify the
-      project and are meant to ship in client code; access is controlled by
-      Firebase Security Rules, not by hiding the key. To use your own project:
-      Firebase console → Project settings → "Your apps" → SDK setup & config.
-    -->
     <script>
       window.FIREBASE_CONFIG = {
-        apiKey: "AIzaSyD8Ypz5Drk1LGqo2utVtaEhp6kGosUx4WI",
-        authDomain: "cyber-search-3a6a6.firebaseapp.com",
-        projectId: "cyber-search-3a6a6",
-        appId: "1:381545098234:web:a9ce83eb9750676fe41243",
+        apiKey: "AIzaSyDc-bdgbUb9xIPVGItp0Lu2KCLI7y5bobw",
+        authDomain: "cyber-search-final.firebaseapp.com",
+        projectId: "cyber-search-final",
+        storageBucket: "cyber-search-final.firebasestorage.app",
+        messagingSenderId: "444317903254",
+        appId: "1:444317903254:web:1f157da4fdcf0084c395b7",
       };
     </script>
     <script type="module">
@@ -2188,9 +2214,8 @@
           "[CyberSearch] Firebase not configured — accounts disabled, local stars + PDF still work.",
         );
       } else {
-        const { initializeApp } = await import(
-          "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-        );
+        const { initializeApp } =
+          await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
         const {
           getAuth,
           onAuthStateChanged,
@@ -2199,12 +2224,10 @@
           signOut,
           GoogleAuthProvider,
           signInWithPopup,
-        } = await import(
-          "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-        );
-        const { getFirestore, doc, getDoc, setDoc } = await import(
-          "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-        );
+        } =
+          await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+        const { getFirestore, doc, getDoc, setDoc } =
+          await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
 
         const app = initializeApp(cfg);
         const auth = getAuth(app);
