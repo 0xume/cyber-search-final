@@ -1,0 +1,522 @@
+{
+  "_comment": "Curated command reference dataset (F2). Hand-maintained source-of-truth for command reference cards. The indexer reads this, validates it, and emits 'command' entries into the unified index. Descriptions summarize behaviour documented in each tool's official man pages / docs; every card links back to that documentation (F6).",
+  "commands": [
+    {
+      "tool": "nmap",
+      "title": "nmap - Network Mapper",
+      "summary": "Scans hosts and networks to discover which are up, which ports are open, and what services and versions are running behind them.",
+      "categories": ["scanning", "reconnaissance", "networking"],
+      "tags": ["port-scan", "recon", "network", "service-detection"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "intermediate",
+      "keywords": ["port scanner", "network scanner", "nmap"],
+      "url": "https://nmap.org/book/man.html",
+      "source_id": "nmap-docs",
+      "synopsis": "nmap [scan type(s)] [options] {target specification}",
+      "flags": [
+        { "flag": "-sS", "meaning": "TCP SYN scan: sends a SYN and never completes the handshake, so it is fast and comparatively quiet. Requires elevated privileges." },
+        { "flag": "-sV", "meaning": "Probe open ports to determine the service and version behind them." },
+        { "flag": "-p", "arg": "ports", "meaning": "Restrict the scan to specific ports, e.g. -p 22,80,443 or -p-  for all 65535." },
+        { "flag": "-O", "meaning": "Attempt OS detection from TCP/IP stack fingerprints." },
+        { "flag": "-A", "meaning": "Aggressive: enables OS detection, version detection, script scanning and traceroute at once." },
+        { "flag": "-sC", "meaning": "Run the default set of Nmap Scripting Engine scripts." },
+        { "flag": "-T", "arg": "0-5", "meaning": "Timing template from 0 (paranoid/slow) to 5 (insane/fast); higher is faster but noisier." },
+        { "flag": "-oA", "arg": "basename", "meaning": "Write results in all three formats (normal, XML, grepable) at once." }
+      ],
+      "examples": [
+        {
+          "command": "nmap -sV -p- 10.10.10.5",
+          "explanation": "Scan every TCP port on one host and identify the service and version on each open port.",
+          "breakdown": [
+            { "token": "nmap", "role": "the scanner program" },
+            { "token": "-sV", "role": "detect the service/version on open ports" },
+            { "token": "-p-", "role": "scan all 65535 TCP ports, not just the common ones" },
+            { "token": "10.10.10.5", "role": "the target host to scan" }
+          ]
+        },
+        {
+          "command": "nmap -sC -sV -oA scan 192.168.1.0/24",
+          "explanation": "Run default scripts and version detection across a whole /24 subnet and save results in all output formats.",
+          "breakdown": [
+            { "token": "-sC", "role": "run the default safe scripts" },
+            { "token": "-sV", "role": "identify service versions" },
+            { "token": "-oA scan", "role": "save normal/XML/grepable output to files named 'scan.*'" },
+            { "token": "192.168.1.0/24", "role": "the target range: 256 addresses in CIDR notation" }
+          ]
+        }
+      ],
+      "see_also": ["masscan", "netstat", "ss"]
+    },
+    {
+      "tool": "dig",
+      "title": "dig - DNS lookup utility",
+      "summary": "Queries DNS servers directly and prints the answers, letting you inspect any record type and trace how a name resolves.",
+      "categories": ["dns", "reconnaissance", "networking"],
+      "tags": ["dns", "recon", "resolution", "nameserver"],
+      "os": ["linux", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["dns lookup", "domain lookup", "dig", "resolver"],
+      "url": "https://linux.die.net/man/1/dig",
+      "source_id": "manpages",
+      "synopsis": "dig [@server] [name] [type] [+query-options]",
+      "flags": [
+        { "flag": "@", "arg": "server", "meaning": "Query a specific DNS server instead of the system default, e.g. @8.8.8.8." },
+        { "flag": "+short", "meaning": "Print only the answer, trimming all the diagnostic sections." },
+        { "flag": "+trace", "meaning": "Trace the delegation path from the root servers down, showing each step of resolution." },
+        { "flag": "-x", "arg": "addr", "meaning": "Reverse lookup: find the hostname associated with an IP address." },
+        { "flag": "+noall +answer", "meaning": "Suppress every section then re-enable only the answer section for tidy output." },
+        { "flag": "ANY / MX / TXT / NS", "meaning": "Record type to request; controls what kind of records are returned." }
+      ],
+      "examples": [
+        {
+          "command": "dig example.com MX +short",
+          "explanation": "Ask for the mail-exchange records of a domain and print just the answer.",
+          "breakdown": [
+            { "token": "dig", "role": "the DNS query tool" },
+            { "token": "example.com", "role": "the name being looked up" },
+            { "token": "MX", "role": "request mail-server (mail exchange) records" },
+            { "token": "+short", "role": "show only the answer, no diagnostics" }
+          ]
+        },
+        {
+          "command": "dig @1.1.1.1 example.com +trace",
+          "explanation": "Resolve a name via Cloudflare's resolver and show the full delegation chain from the root.",
+          "breakdown": [
+            { "token": "@1.1.1.1", "role": "use this specific DNS server for the query" },
+            { "token": "example.com", "role": "the domain to resolve" },
+            { "token": "+trace", "role": "walk the resolution path from the root servers down" }
+          ]
+        }
+      ],
+      "see_also": ["nslookup", "host", "whois"]
+    },
+    {
+      "tool": "netstat",
+      "title": "netstat - Network statistics",
+      "summary": "Shows active network connections, listening ports, routing tables and per-protocol statistics on the local machine.",
+      "categories": ["networking", "enumeration", "forensics"],
+      "tags": ["connections", "ports", "local", "sockets"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["netstat", "open ports", "listening ports", "connections"],
+      "url": "https://linux.die.net/man/8/netstat",
+      "source_id": "manpages",
+      "synopsis": "netstat [options]",
+      "flags": [
+        { "flag": "-t", "meaning": "Show TCP connections." },
+        { "flag": "-u", "meaning": "Show UDP connections." },
+        { "flag": "-l", "meaning": "Show only sockets that are listening (waiting for inbound connections)." },
+        { "flag": "-n", "meaning": "Show numeric addresses and ports instead of resolving names (faster, avoids DNS)." },
+        { "flag": "-p", "meaning": "Show the process id and program name that owns each socket (needs privileges)." },
+        { "flag": "-r", "meaning": "Display the kernel routing table." },
+        { "flag": "-a", "meaning": "Show all sockets, both listening and established." }
+      ],
+      "examples": [
+        {
+          "command": "netstat -tulpn",
+          "explanation": "List every listening TCP and UDP port together with the process behind each one - the classic 'what is running on this box' check.",
+          "breakdown": [
+            { "token": "netstat", "role": "the network-statistics tool" },
+            { "token": "-t", "role": "include TCP sockets" },
+            { "token": "-u", "role": "include UDP sockets" },
+            { "token": "-l", "role": "only show listening sockets" },
+            { "token": "-p", "role": "show the owning process for each socket" },
+            { "token": "-n", "role": "keep addresses/ports numeric (no name resolution)" }
+          ]
+        }
+      ],
+      "see_also": ["ss", "nmap", "lsof"]
+    },
+    {
+      "tool": "ss",
+      "title": "ss - Socket statistics",
+      "summary": "The modern, faster replacement for netstat: dumps socket statistics and shows detailed connection state on Linux.",
+      "categories": ["networking", "enumeration"],
+      "tags": ["sockets", "connections", "ports", "linux"],
+      "os": ["linux"],
+      "difficulty": "beginner",
+      "keywords": ["ss", "socket statistics", "netstat replacement"],
+      "url": "https://man7.org/linux/man-pages/man8/ss.8.html",
+      "source_id": "manpages",
+      "synopsis": "ss [options] [filter]",
+      "flags": [
+        { "flag": "-t", "meaning": "Display TCP sockets." },
+        { "flag": "-u", "meaning": "Display UDP sockets." },
+        { "flag": "-l", "meaning": "Display listening sockets only." },
+        { "flag": "-n", "meaning": "Do not resolve service names; show raw port numbers." },
+        { "flag": "-p", "meaning": "Show the process using each socket." },
+        { "flag": "-a", "meaning": "Show both listening and non-listening sockets." }
+      ],
+      "examples": [
+        {
+          "command": "ss -tlnp",
+          "explanation": "Quickly list listening TCP ports and their owning processes - the ss equivalent of the common netstat check.",
+          "breakdown": [
+            { "token": "ss", "role": "the socket-statistics tool" },
+            { "token": "-t", "role": "TCP sockets" },
+            { "token": "-l", "role": "listening only" },
+            { "token": "-n", "role": "numeric ports, no name lookup" },
+            { "token": "-p", "role": "show the owning process" }
+          ]
+        }
+      ],
+      "see_also": ["netstat", "lsof", "nmap"]
+    },
+    {
+      "tool": "nslookup",
+      "title": "nslookup - Name server lookup",
+      "summary": "Interactive and one-shot DNS query tool available on both Windows and Unix; handy for quick forward and reverse lookups.",
+      "categories": ["dns", "networking", "reconnaissance"],
+      "tags": ["dns", "lookup", "resolution", "windows"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["nslookup", "dns", "name server"],
+      "url": "https://learn.microsoft.com/windows-server/administration/windows-commands/nslookup",
+      "source_id": "ms-docs",
+      "synopsis": "nslookup [-option] [name | -] [server]",
+      "flags": [
+        { "flag": "-type=", "arg": "record", "meaning": "Set the record type to query, e.g. -type=MX or -type=NS." },
+        { "flag": "-debug", "meaning": "Print the full response including headers for troubleshooting." },
+        { "flag": "server", "meaning": "A trailing argument naming which DNS server to ask." }
+      ],
+      "examples": [
+        {
+          "command": "nslookup -type=MX example.com 8.8.8.8",
+          "explanation": "Look up a domain's mail servers using Google's public DNS resolver.",
+          "breakdown": [
+            { "token": "nslookup", "role": "the DNS lookup tool" },
+            { "token": "-type=MX", "role": "request mail-exchange records" },
+            { "token": "example.com", "role": "the domain to query" },
+            { "token": "8.8.8.8", "role": "the DNS server to send the query to" }
+          ]
+        }
+      ],
+      "see_also": ["dig", "host", "whois"]
+    },
+    {
+      "tool": "host",
+      "title": "host - DNS lookup utility",
+      "summary": "A simple utility for performing DNS lookups; good for fast forward, reverse and record-type queries with minimal output.",
+      "categories": ["dns", "networking", "reconnaissance"],
+      "tags": ["dns", "lookup", "resolution"],
+      "os": ["linux", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["host command", "dns lookup"],
+      "url": "https://linux.die.net/man/1/host",
+      "source_id": "manpages",
+      "synopsis": "host [options] name [server]",
+      "flags": [
+        { "flag": "-t", "arg": "type", "meaning": "Specify the record type to look up, e.g. -t NS." },
+        { "flag": "-a", "meaning": "Equivalent to a verbose ANY query showing all record types." },
+        { "flag": "-l", "arg": "zone", "meaning": "Attempt a full zone transfer (list all records) - only works if the server allows it." }
+      ],
+      "examples": [
+        {
+          "command": "host -t NS example.com",
+          "explanation": "List the authoritative name servers for a domain.",
+          "breakdown": [
+            { "token": "host", "role": "the DNS lookup tool" },
+            { "token": "-t NS", "role": "request name-server records" },
+            { "token": "example.com", "role": "the domain to query" }
+          ]
+        }
+      ],
+      "see_also": ["dig", "nslookup"]
+    },
+    {
+      "tool": "whois",
+      "title": "whois - Domain registration lookup",
+      "summary": "Queries registry databases for registration details of a domain or IP block, such as owner, registrar and name servers.",
+      "categories": ["reconnaissance", "dns", "networking"],
+      "tags": ["whois", "registration", "osint", "recon"],
+      "os": ["linux", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["whois", "domain owner", "registration"],
+      "url": "https://linux.die.net/man/1/whois",
+      "source_id": "manpages",
+      "synopsis": "whois [options] object",
+      "flags": [
+        { "flag": "-h", "arg": "host", "meaning": "Query a specific whois server instead of the default for the TLD." },
+        { "flag": "-H", "meaning": "Hide the legal disclaimer / boilerplate text in the output." }
+      ],
+      "examples": [
+        {
+          "command": "whois example.com",
+          "explanation": "Retrieve registration and administrative details for a domain from its registry.",
+          "breakdown": [
+            { "token": "whois", "role": "the registration-lookup tool" },
+            { "token": "example.com", "role": "the domain (or IP) to look up" }
+          ]
+        }
+      ],
+      "see_also": ["dig", "host"]
+    },
+    {
+      "tool": "ping",
+      "title": "ping - Test host reachability",
+      "summary": "Sends ICMP echo requests to check whether a host is reachable and measures round-trip latency.",
+      "categories": ["networking", "reconnaissance"],
+      "tags": ["icmp", "reachability", "latency", "connectivity"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["ping", "icmp", "reachability"],
+      "url": "https://linux.die.net/man/8/ping",
+      "source_id": "manpages",
+      "synopsis": "ping [options] destination",
+      "flags": [
+        { "flag": "-c", "arg": "count", "meaning": "Stop after sending this many packets (Linux/macOS)." },
+        { "flag": "-n", "arg": "count", "meaning": "Number of echo requests to send (Windows)." },
+        { "flag": "-i", "arg": "secs", "meaning": "Interval in seconds between packets." },
+        { "flag": "-t", "meaning": "Ping continuously until stopped (Windows)." }
+      ],
+      "examples": [
+        {
+          "command": "ping -c 4 example.com",
+          "explanation": "Send four echo requests to a host and report whether they came back and how long they took.",
+          "breakdown": [
+            { "token": "ping", "role": "the reachability test tool" },
+            { "token": "-c 4", "role": "send exactly four packets then stop" },
+            { "token": "example.com", "role": "the host to test" }
+          ]
+        }
+      ],
+      "see_also": ["traceroute", "nmap"]
+    },
+    {
+      "tool": "traceroute",
+      "title": "traceroute - Trace the network path",
+      "summary": "Maps the route packets take to a destination, listing each router (hop) along the way and the latency to it.",
+      "categories": ["networking", "reconnaissance"],
+      "tags": ["routing", "hops", "path", "latency"],
+      "os": ["linux", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["traceroute", "tracert", "path", "hops"],
+      "url": "https://linux.die.net/man/8/traceroute",
+      "source_id": "manpages",
+      "synopsis": "traceroute [options] host",
+      "flags": [
+        { "flag": "-n", "meaning": "Show hop IP addresses numerically without reverse DNS." },
+        { "flag": "-m", "arg": "hops", "meaning": "Set the maximum number of hops (TTL) to probe." },
+        { "flag": "-T", "meaning": "Use TCP SYN probes instead of UDP (helps past some firewalls)." }
+      ],
+      "examples": [
+        {
+          "command": "traceroute -n example.com",
+          "explanation": "Show each router between you and the destination, numerically, to see where the path goes or stalls.",
+          "breakdown": [
+            { "token": "traceroute", "role": "the path-tracing tool" },
+            { "token": "-n", "role": "print hop IPs numerically, no DNS lookups" },
+            { "token": "example.com", "role": "the destination to trace toward" }
+          ]
+        }
+      ],
+      "see_also": ["ping", "mtr"]
+    },
+    {
+      "tool": "curl",
+      "title": "curl - Transfer data over URLs",
+      "summary": "A versatile command-line HTTP(S) client for fetching URLs, sending requests with custom methods and headers, and inspecting responses.",
+      "categories": ["web", "transfer", "enumeration"],
+      "tags": ["http", "web", "client", "api"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["curl", "http client", "web request"],
+      "url": "https://curl.se/docs/manpage.html",
+      "source_id": "curl-docs",
+      "synopsis": "curl [options] <url>",
+      "flags": [
+        { "flag": "-I", "meaning": "Fetch only the response headers (HEAD request)." },
+        { "flag": "-i", "meaning": "Include the response headers along with the body." },
+        { "flag": "-L", "meaning": "Follow redirects to the final destination." },
+        { "flag": "-X", "arg": "method", "meaning": "Set the HTTP method, e.g. -X POST." },
+        { "flag": "-H", "arg": "header", "meaning": "Add a custom request header, e.g. -H 'Authorization: Bearer ...'." },
+        { "flag": "-d", "arg": "data", "meaning": "Send a request body (implies POST unless -X overrides)." },
+        { "flag": "-o", "arg": "file", "meaning": "Write the response body to a file." },
+        { "flag": "-s", "meaning": "Silent: suppress the progress meter and errors." }
+      ],
+      "examples": [
+        {
+          "command": "curl -I -L https://example.com",
+          "explanation": "Fetch just the headers and follow any redirects to see where a URL ultimately lands and what server responds.",
+          "breakdown": [
+            { "token": "curl", "role": "the URL transfer tool" },
+            { "token": "-I", "role": "request headers only (HEAD)" },
+            { "token": "-L", "role": "follow redirects to the final URL" },
+            { "token": "https://example.com", "role": "the URL to fetch" }
+          ]
+        }
+      ],
+      "see_also": ["wget", "nc"]
+    },
+    {
+      "tool": "wget",
+      "title": "wget - Non-interactive downloader",
+      "summary": "Retrieves files over HTTP, HTTPS and FTP from the command line, with support for recursive downloads and resuming.",
+      "categories": ["web", "transfer"],
+      "tags": ["http", "download", "ftp", "mirror"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "beginner",
+      "keywords": ["wget", "download", "fetch file"],
+      "url": "https://www.gnu.org/software/wget/manual/wget.html",
+      "source_id": "gnu-docs",
+      "synopsis": "wget [options] [url]",
+      "flags": [
+        { "flag": "-O", "arg": "file", "meaning": "Save the download under a specific filename." },
+        { "flag": "-c", "meaning": "Continue a partially downloaded file." },
+        { "flag": "-r", "meaning": "Download recursively, following links." },
+        { "flag": "-q", "meaning": "Quiet mode, no output." },
+        { "flag": "--limit-rate", "arg": "rate", "meaning": "Throttle the download speed to be polite to the server." }
+      ],
+      "examples": [
+        {
+          "command": "wget -c https://example.com/file.iso",
+          "explanation": "Download a file and, if the connection drops, resume from where it stopped instead of starting over.",
+          "breakdown": [
+            { "token": "wget", "role": "the downloader" },
+            { "token": "-c", "role": "resume a partial download if one exists" },
+            { "token": "https://example.com/file.iso", "role": "the file URL to download" }
+          ]
+        }
+      ],
+      "see_also": ["curl"]
+    },
+    {
+      "tool": "nc",
+      "title": "nc (netcat) - TCP/UDP swiss-army knife",
+      "summary": "Reads and writes data across raw TCP or UDP connections; used to test open ports, transfer data, and build simple client/server links.",
+      "categories": ["networking", "transfer", "enumeration"],
+      "tags": ["netcat", "tcp", "udp", "sockets", "banner-grab"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "intermediate",
+      "keywords": ["netcat", "nc", "ncat", "socket tool"],
+      "url": "https://linux.die.net/man/1/nc",
+      "source_id": "manpages",
+      "synopsis": "nc [options] [host] [port]",
+      "flags": [
+        { "flag": "-l", "meaning": "Listen for an incoming connection rather than initiating one." },
+        { "flag": "-v", "meaning": "Verbose output, useful for seeing connection status." },
+        { "flag": "-n", "meaning": "Skip DNS resolution; use numeric addresses only." },
+        { "flag": "-p", "arg": "port", "meaning": "Specify the local source port." },
+        { "flag": "-z", "meaning": "Zero-I/O mode: just check whether a port is open without sending data." },
+        { "flag": "-u", "meaning": "Use UDP instead of TCP." }
+      ],
+      "examples": [
+        {
+          "command": "nc -zv example.com 20-25",
+          "explanation": "Check which ports in a small range are open on a host without sending any real payload - a quick connectivity probe.",
+          "breakdown": [
+            { "token": "nc", "role": "the netcat tool" },
+            { "token": "-z", "role": "scan for listening ports without sending data" },
+            { "token": "-v", "role": "report the result of each connection attempt" },
+            { "token": "example.com", "role": "the target host" },
+            { "token": "20-25", "role": "the range of ports to test" }
+          ]
+        }
+      ],
+      "see_also": ["nmap", "socat", "curl"]
+    },
+    {
+      "tool": "ssh",
+      "title": "ssh - Secure Shell client",
+      "summary": "Opens an encrypted remote login/command session to another machine, and can tunnel other traffic securely.",
+      "categories": ["remote-access", "networking"],
+      "tags": ["ssh", "remote", "tunnel", "encryption"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "intermediate",
+      "keywords": ["ssh", "secure shell", "remote login"],
+      "url": "https://man.openbsd.org/ssh.1",
+      "source_id": "openbsd-docs",
+      "synopsis": "ssh [options] [user@]host [command]",
+      "flags": [
+        { "flag": "-p", "arg": "port", "meaning": "Connect to a non-default SSH port." },
+        { "flag": "-i", "arg": "keyfile", "meaning": "Authenticate with a specific private key file." },
+        { "flag": "-L", "arg": "spec", "meaning": "Forward a local port to a remote destination (local port forwarding)." },
+        { "flag": "-D", "arg": "port", "meaning": "Open a dynamic SOCKS proxy over the SSH connection." },
+        { "flag": "-v", "meaning": "Verbose; add more -v for deeper debugging of the handshake." }
+      ],
+      "examples": [
+        {
+          "command": "ssh -i key.pem -p 2222 user@example.com",
+          "explanation": "Log in to a remote host on a custom port using a specific private key file.",
+          "breakdown": [
+            { "token": "ssh", "role": "the secure shell client" },
+            { "token": "-i key.pem", "role": "use this private key to authenticate" },
+            { "token": "-p 2222", "role": "connect to port 2222 instead of the default 22" },
+            { "token": "user@example.com", "role": "the account and host to log in to" }
+          ]
+        }
+      ],
+      "see_also": ["scp", "nc"]
+    },
+    {
+      "tool": "tcpdump",
+      "title": "tcpdump - Packet capture and analysis",
+      "summary": "Captures and displays packets on a network interface using filter expressions; the standard command-line tool for inspecting traffic.",
+      "categories": ["traffic-analysis", "networking", "forensics"],
+      "tags": ["packet-capture", "sniffer", "pcap", "traffic"],
+      "os": ["linux", "macos"],
+      "difficulty": "advanced",
+      "keywords": ["tcpdump", "packet capture", "sniffer", "pcap"],
+      "url": "https://www.tcpdump.org/manpages/tcpdump.1.html",
+      "source_id": "tcpdump-docs",
+      "synopsis": "tcpdump [options] [filter expression]",
+      "flags": [
+        { "flag": "-i", "arg": "iface", "meaning": "Capture on a specific interface (e.g. eth0), or 'any' for all." },
+        { "flag": "-n", "meaning": "Do not resolve hostnames or port names; keep output numeric." },
+        { "flag": "-w", "arg": "file", "meaning": "Write raw packets to a .pcap file for later analysis." },
+        { "flag": "-r", "arg": "file", "meaning": "Read and display packets from a saved .pcap file." },
+        { "flag": "-c", "arg": "count", "meaning": "Stop after capturing this many packets." },
+        { "flag": "-A", "meaning": "Print packet payloads in ASCII, handy for plaintext protocols." }
+      ],
+      "examples": [
+        {
+          "command": "tcpdump -i eth0 -n port 53 -w dns.pcap",
+          "explanation": "Capture DNS traffic on an interface and save it to a file for later analysis in a tool like Wireshark.",
+          "breakdown": [
+            { "token": "tcpdump", "role": "the packet capture tool" },
+            { "token": "-i eth0", "role": "listen on the eth0 interface" },
+            { "token": "-n", "role": "keep addresses and ports numeric" },
+            { "token": "port 53", "role": "filter to DNS traffic only" },
+            { "token": "-w dns.pcap", "role": "save captured packets to a file" }
+          ]
+        }
+      ],
+      "see_also": ["wireshark", "tshark"]
+    },
+    {
+      "tool": "gobuster",
+      "title": "gobuster - Directory/DNS/vhost brute-forcer",
+      "summary": "Discovers hidden paths, subdomains or virtual hosts on a target by trying entries from a wordlist and reporting which ones exist.",
+      "categories": ["enumeration", "web", "reconnaissance"],
+      "tags": ["directory-bruteforce", "web", "enumeration", "wordlist"],
+      "os": ["linux", "windows", "macos"],
+      "difficulty": "intermediate",
+      "keywords": ["gobuster", "dir busting", "content discovery"],
+      "url": "https://github.com/OJ/gobuster",
+      "source_id": "gobuster-repo",
+      "synopsis": "gobuster <mode> [options]",
+      "flags": [
+        { "flag": "dir", "meaning": "Mode: brute-force directories and files under a URL." },
+        { "flag": "dns", "meaning": "Mode: brute-force subdomains of a domain." },
+        { "flag": "-u", "arg": "url", "meaning": "Target URL (dir mode)." },
+        { "flag": "-w", "arg": "wordlist", "meaning": "Path to the wordlist of names to try." },
+        { "flag": "-x", "arg": "exts", "meaning": "Append file extensions to each attempt, e.g. -x php,txt." },
+        { "flag": "-t", "arg": "n", "meaning": "Number of concurrent threads." }
+      ],
+      "examples": [
+        {
+          "command": "gobuster dir -u https://example.com -w wordlist.txt -x php,html",
+          "explanation": "Look for hidden pages and files on a site by testing each wordlist entry, also trying common extensions.",
+          "breakdown": [
+            { "token": "gobuster", "role": "the brute-forcing tool" },
+            { "token": "dir", "role": "directory/file discovery mode" },
+            { "token": "-u https://example.com", "role": "the target site" },
+            { "token": "-w wordlist.txt", "role": "the list of names to try" },
+            { "token": "-x php,html", "role": "also try each name with these extensions" }
+          ]
+        }
+      ],
+      "see_also": ["ffuf", "curl"]
+    }
+  ]
+}

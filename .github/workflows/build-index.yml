@@ -1,0 +1,70 @@
+name: Build index & deploy
+
+# Keeps the search index fresh automatically (no manual effort) and publishes
+# the static site + index.json to GitHub Pages.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r indexer/requirements.txt
+
+      - name: Run pipeline smoke test
+        working-directory: indexer
+        run: python test_pipeline.py
+
+      - name: Build index (live, with sample fallback)
+        run: |
+          python indexer/indexer.py --pretty --out site/index.json \
+            || python indexer/indexer.py --sample --pretty --out site/index.json
+
+      - name: Validate index against schema
+        run: |
+          python - <<'PY'
+          import json, jsonschema
+          idx = json.load(open("site/index.json"))
+          schema = json.load(open("schema/index.schema.json"))
+          jsonschema.validate(idx, schema)
+          print(f"OK: {idx['counts']['entries']} entries validate")
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

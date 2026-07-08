@@ -1,0 +1,6 @@
+# Cyber Search - data pipeline dependencies (Andrei's track)
+feedparser>=6.0.11      # RSS / Atom feed parsing (F3)
+requests>=2.31.0        # polite HTTP fetching
+beautifulsoup4>=4.12.3  # section-level HTML / sitemap parsing where feeds fall short
+lxml>=5.1.0             # fast parser backend for BeautifulSoup
+jsonschema>=4.21.0      # validate the index against the integration contract

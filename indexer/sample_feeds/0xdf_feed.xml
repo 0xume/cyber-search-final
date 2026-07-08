@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>0xdf hacks stuff (sample)</title>
+  <link href="https://0xdf.gitlab.io/"/>
+  <updated>2026-01-15T10:00:00Z</updated>
+  <author><name>0xdf</name></author>
+  <id>https://0xdf.gitlab.io/</id>
+
+  <entry>
+    <title>HTB: Cascade</title>
+    <link href="https://0xdf.gitlab.io/2020/06/13/htb-cascade.html"/>
+    <id>https://0xdf.gitlab.io/2020/06/13/htb-cascade.html</id>
+    <published>2020-06-13T00:00:00Z</published>
+    <updated>2020-06-13T00:00:00Z</updated>
+    <category term="ldap"/>
+    <category term="active-directory"/>
+    <category term="enumeration"/>
+    <summary>Enumerating an Active Directory environment over LDAP to recover credentials and escalate.</summary>
+  </entry>
+
+  <entry>
+    <title>HTB: Sauna</title>
+    <link href="https://0xdf.gitlab.io/2020/07/18/htb-sauna.html"/>
+    <id>https://0xdf.gitlab.io/2020/07/18/htb-sauna.html</id>
+    <published>2020-07-18T00:00:00Z</published>
+    <updated>2020-07-18T00:00:00Z</updated>
+    <category term="kerberos"/>
+    <category term="asreproast"/>
+    <category term="windows"/>
+    <summary>Using Kerberos pre-authentication weaknesses to enumerate and attack accounts.</summary>
+  </entry>
+
+  <entry>
+    <title>HTB: Nineveh</title>
+    <link href="https://0xdf.gitlab.io/2021/03/06/htb-nineveh.html"/>
+    <id>https://0xdf.gitlab.io/2021/03/06/htb-nineveh.html</id>
+    <published>2021-03-06T00:00:00Z</published>
+    <updated>2021-03-06T00:00:00Z</updated>
+    <category term="web"/>
+    <category term="lfi"/>
+    <category term="easy"/>
+    <summary>Chaining web enumeration and local file inclusion to gain a foothold.</summary>
+  </entry>
+
+  <entry>
+    <title>HTB: Return</title>
+    <link href="https://0xdf.gitlab.io/2022/01/22/htb-return.html"/>
+    <id>https://0xdf.gitlab.io/2022/01/22/htb-return.html</id>
+    <published>2022-01-22T00:00:00Z</published>
+    <updated>2022-01-22T00:00:00Z</updated>
+    <category term="printer"/>
+    <category term="active-directory"/>
+    <category term="easy"/>
+    <summary>Capturing credentials from a network printer configuration page.</summary>
+  </entry>
+
+  <entry>
+    <title>HTB: Forge</title>
+    <link href="https://0xdf.gitlab.io/2022/03/12/htb-forge.html"/>
+    <id>https://0xdf.gitlab.io/2022/03/12/htb-forge.html</id>
+    <published>2022-03-12T00:00:00Z</published>
+    <updated>2022-03-12T00:00:00Z</updated>
+    <category term="ssrf"/>
+    <category term="web"/>
+    <category term="medium"/>
+    <summary>Server-side request forgery used to reach internal-only services.</summary>
+  </entry>
+</feed>

@@ -1,0 +1,230 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://team-cyber-fiber.github.io/cyber-search/schema/index.schema.json",
+  "title": "Cyber Search Index",
+  "description": "Unified, read-only search index produced by the build-time pipeline and consumed by the client-side front end. This file is the integration contract between the two tracks: any change here must be agreed by both team members.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "counts", "facets", "entries"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Semantic version of THIS schema. The front end should check the major version on load.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC ISO-8601 timestamp of when this index was built."
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entries", "commands", "resources", "sources"],
+      "properties": {
+        "entries": { "type": "integer", "minimum": 0 },
+        "commands": { "type": "integer", "minimum": 0 },
+        "resources": { "type": "integer", "minimum": 0 },
+        "sources": { "type": "integer", "minimum": 0 }
+      },
+      "description": "Precomputed totals so the UI can show stats without scanning the array."
+    },
+    "facets": {
+      "$ref": "#/definitions/facets",
+      "description": "Precomputed facet values with counts, so Daniel's filter UI (F4) can render options without a full pass over entries."
+    },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/source" },
+      "description": "The distinct sources that contributed to this build, for attribution and an 'about' page."
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/entry" }
+    }
+  },
+  "definitions": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_-]+$",
+          "description": "Stable slug, e.g. 'ippsec' or 'manpages'."
+        },
+        "name": { "type": "string", "description": "Human-readable name, e.g. 'IppSec'." },
+        "author": { "type": "string", "description": "Content creator, where a single author is credited." },
+        "homepage": { "type": "string", "format": "uri" },
+        "kind": {
+          "type": "string",
+          "enum": ["writeups", "reference", "docs", "manpages", "curated"],
+          "description": "What kind of content this source provides."
+        },
+        "license_note": {
+          "type": "string",
+          "description": "Free-text note on how the material may be used. We store metadata only and always deep-link back."
+        }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One searchable item. 'command' entries are curated reference cards (F2/F8); 'resource' entries are write-ups/videos ingested from feeds (F3).",
+      "required": ["id", "kind", "title", "summary", "url", "source_id", "tags", "categories", "os", "difficulty", "keywords", "rank_score", "indexed_at"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(cmd|res):[a-z0-9._-]+$",
+          "description": "Globally unique, stable id. Prefix 'cmd:' for commands, 'res:' for resources."
+        },
+        "kind": { "type": "string", "enum": ["command", "resource"] },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": {
+          "type": "string",
+          "description": "Plain-language one/two sentence description. For commands this is the 'what it does' line."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Deep link back to the original source (F6). The app never rehosts content."
+        },
+        "source_id": {
+          "type": "string",
+          "description": "References source.id in the top-level 'sources' array."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Free-form tags used by faceted filtering and search (e.g. 'dns', 'recon')."
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "reconnaissance", "scanning", "enumeration", "dns", "networking",
+              "web", "transfer", "remote-access", "traffic-analysis", "brute-force",
+              "cryptography", "forensics", "general"
+            ]
+          },
+          "description": "Controlled vocabulary so filter chips are consistent across the whole index."
+        },
+        "os": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["linux", "windows", "macos", "cross-platform"] }
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["beginner", "intermediate", "advanced"]
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Extra searchable terms (aliases, related tools) that boost fuzzy matching in Fuse.js."
+        },
+        "rank_score": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Precomputed relevance weight (F6). Higher sorts first when scores tie in the client search."
+        },
+        "indexed_at": { "type": "string", "format": "date-time" },
+        "command": {
+          "$ref": "#/definitions/command_detail",
+          "description": "Present only when kind == 'command'. Powers the 'Explain the Command' view (F8)."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "command" } } },
+          "then": { "required": ["command"] }
+        }
+      ]
+    },
+    "command_detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "synopsis", "flags", "examples"],
+      "properties": {
+        "tool": { "type": "string", "description": "Binary/tool name, e.g. 'nmap'." },
+        "synopsis": {
+          "type": "string",
+          "description": "Canonical usage line, e.g. 'nmap [scan type] [options] {target}'."
+        },
+        "platforms": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["linux", "windows", "macos"] }
+        },
+        "flags": {
+          "type": "array",
+          "description": "Common flags with plain-language explanations (the educational 'why').",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["flag", "meaning"],
+            "properties": {
+              "flag": { "type": "string" },
+              "arg": { "type": "string", "description": "Placeholder for the flag's argument, if any." },
+              "meaning": { "type": "string" }
+            }
+          }
+        },
+        "examples": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Worked examples. 'breakdown' drives the token-by-token 'Explain the Command' view (F8).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["command", "explanation"],
+            "properties": {
+              "command": { "type": "string" },
+              "explanation": { "type": "string" },
+              "breakdown": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["token", "role"],
+                  "properties": {
+                    "token": { "type": "string", "description": "A piece of the command line." },
+                    "role": { "type": "string", "description": "What that token does." }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "see_also": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Related tool names, for cross-navigation."
+        }
+      }
+    },
+    "facets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "categories": { "$ref": "#/definitions/facet_buckets" },
+        "tags": { "$ref": "#/definitions/facet_buckets" },
+        "os": { "$ref": "#/definitions/facet_buckets" },
+        "difficulty": { "$ref": "#/definitions/facet_buckets" },
+        "kind": { "$ref": "#/definitions/facet_buckets" }
+      }
+    },
+    "facet_buckets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "count"],
+        "properties": {
+          "value": { "type": "string" },
+          "count": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

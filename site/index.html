@@ -1,0 +1,2256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberSearch — find a command, understand every flag</title>
+    <meta
+      name="description"
+      content="Search thousands of security & shell commands and curated write-ups. Usage examples, flag breakdowns, and links to docs, videos, and blogs."
+    />
+    <style>
+      :root {
+        --bg: #0a0d13;
+        --surface: #101623;
+        --surface2: #141b2b;
+        --raise: #1a2233;
+        --border: #1f2839;
+        --border-hi: #2f3d58;
+        --text: #e8edf7;
+        --muted: #8c9ab5;
+        --faint: #586179;
+        --blue: #4c8dff;
+        --blue-hi: #7cabff;
+        --blue-soft: rgba(76, 141, 255, 0.13);
+        --blue-line: rgba(76, 141, 255, 0.42);
+        --violet: #bb8cff;
+        --violet-soft: rgba(187, 140, 255, 0.13);
+        --ok: #3ecf8e;
+        --mono:
+          "SFMono-Regular", ui-monospace, "JetBrains Mono", "Cascadia Code",
+          Menlo, Consolas, monospace;
+        --sans:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+      }
+      html.day:root {
+        --bg: #f6f8fc;
+        --surface: #ffffff;
+        --surface2: #eef2f9;
+        --raise: #fff;
+        --border: #e5eaf3;
+        --border-hi: #ccd6e6;
+        --text: #111827;
+        --muted: #57627d;
+        --faint: #8a95ac;
+        --blue: #2f6fe0;
+        --blue-hi: #1f5bc4;
+        --blue-soft: rgba(47, 111, 224, 0.09);
+        --blue-line: rgba(47, 111, 224, 0.34);
+        --violet: #7c53d6;
+        --violet-soft: rgba(124, 83, 214, 0.1);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      code,
+      .mono {
+        font-family: var(--mono);
+      }
+      ::selection {
+        background: var(--blue);
+        color: #fff;
+      }
+      mark {
+        background: var(--blue-soft);
+        color: var(--blue-hi);
+        border-radius: 3px;
+        padding: 0 2px;
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+      ::-webkit-scrollbar {
+        width: 11px;
+        height: 11px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-hi);
+        border-radius: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      button {
+        font-family: inherit;
+      }
+
+      .top {
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in srgb, var(--bg) 80%, transparent);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 30;
+      }
+      .top .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        height: 56px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 650;
+        font-size: 16px;
+        letter-spacing: -0.01em;
+      }
+      .brand .mk {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        background: linear-gradient(135deg, var(--blue), var(--violet));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .brand b {
+        color: var(--blue);
+      }
+      .top-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--faint);
+      }
+      .stat {
+        display: none;
+      }
+      @media (min-width: 760px) {
+        .stat {
+          display: inline;
+        }
+      }
+      .tog {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 6px 11px;
+        cursor: pointer;
+        transition: 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tog:hover {
+        border-color: var(--border-hi);
+        color: var(--text);
+      }
+
+      .hero {
+        padding: 56px 0 6px;
+        text-align: center;
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 16px;
+      }
+      .hero h1 {
+        font-size: 36px;
+        line-height: 1.08;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        margin: 0 auto 12px;
+        max-width: 17ch;
+      }
+      .hero h1 .g {
+        background: linear-gradient(120deg, var(--blue), var(--violet));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .hero .lede {
+        font-size: 16px;
+        color: var(--muted);
+        max-width: 58ch;
+        margin: 0 auto 30px;
+      }
+      .searchbox {
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+      }
+      .prompt {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--surface);
+        border: 1px solid var(--border-hi);
+        border-radius: 15px;
+        padding: 0 10px 0 17px;
+        height: 62px;
+        transition: 0.15s;
+        box-shadow: 0 10px 34px rgba(0, 0, 0, 0.2);
+      }
+      .prompt:focus-within {
+        border-color: var(--blue);
+        box-shadow:
+          0 0 0 4px var(--blue-soft),
+          0 10px 34px rgba(0, 0, 0, 0.2);
+      }
+      .prompt .mag {
+        color: var(--faint);
+        flex-shrink: 0;
+      }
+      #q {
+        flex: 1;
+        background: none;
+        border: none;
+        outline: none;
+        color: var(--text);
+        font-size: 16px;
+        height: 100%;
+        font-family: var(--sans);
+      }
+      #q::placeholder {
+        color: var(--faint);
+      }
+      .prompt .dice {
+        background: none;
+        border: none;
+        color: var(--faint);
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        transition: 0.15s;
+      }
+      .prompt .dice:hover {
+        color: var(--blue);
+        background: var(--blue-soft);
+      }
+      .slash {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--faint);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 3px 8px;
+        flex-shrink: 0;
+        margin-right: 4px;
+      }
+      .examples {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .examples .try {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--faint);
+      }
+      .ex {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 5px 12px;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .ex:hover {
+        border-color: var(--blue-line);
+        color: var(--blue);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 224px 1fr;
+        gap: 32px;
+        align-items: start;
+        padding: 36px 0 0;
+      }
+      @media (max-width: 860px) {
+        .layout {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+      }
+      .rail {
+        position: sticky;
+        top: 74px;
+      }
+      @media (max-width: 860px) {
+        .rail {
+          position: static;
+        }
+      }
+      .rail-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .rail-head span {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--faint);
+      }
+      #clear {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--blue);
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      #clear:hover {
+        text-decoration: underline;
+      }
+      .fgroup {
+        margin-bottom: 20px;
+      }
+      .fgroup > p {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 8px;
+      }
+      .frow {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px 0;
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--muted);
+        transition: 0.12s;
+      }
+      .frow:hover {
+        color: var(--text);
+      }
+      .frow.on {
+        color: var(--blue);
+      }
+      .box {
+        width: 15px;
+        height: 15px;
+        border-radius: 5px;
+        border: 1.5px solid var(--border-hi);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.12s;
+      }
+      .frow.on .box {
+        background: var(--blue);
+        border-color: var(--blue);
+      }
+      .box svg {
+        width: 10px;
+        height: 10px;
+        color: #fff;
+        opacity: 0;
+      }
+      .frow.on .box svg {
+        opacity: 1;
+      }
+      .fname {
+        flex: 1;
+        text-transform: capitalize;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .fcount {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--faint);
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .countline {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--faint);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .countline .tick {
+        color: var(--ok);
+      }
+      .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .navhint {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--faint);
+        display: none;
+      }
+      @media (min-width: 760px) {
+        .navhint {
+          display: flex;
+          gap: 5px;
+          align-items: center;
+        }
+      }
+      .navhint kbd {
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+        font-size: 10px;
+        background: var(--surface);
+      }
+      .sortsel {
+        font-family: var(--mono);
+        font-size: 11px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--muted);
+        padding: 6px 8px;
+        cursor: pointer;
+      }
+      .sortsel:focus {
+        outline: none;
+        border-color: var(--blue);
+      }
+
+      .grid {
+        display: grid;
+        gap: 11px;
+      }
+      .row {
+        position: relative;
+        text-align: left;
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 17px 16px 19px;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          transform 0.06s,
+          box-shadow 0.15s;
+        overflow: hidden;
+      }
+      .row::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        transition: 0.15s;
+      }
+      .row.cmd::before {
+        background: var(--blue-line);
+      }
+      .row.res::before {
+        background: var(--border-hi);
+      }
+      .row:hover,
+      .row.active {
+        border-color: var(--border-hi);
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
+      }
+      .row.active {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px var(--blue-soft);
+      }
+      .row.cmd:hover::before,
+      .row.cmd.active::before {
+        background: var(--blue);
+      }
+      .row.res:hover::before,
+      .row.res.active::before {
+        background: var(--violet);
+      }
+      .row:active {
+        transform: translateY(1px);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .row {
+          transition: none;
+        }
+      }
+      .r-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 5px;
+      }
+      .r-name {
+        font-size: 15px;
+      }
+      .row.cmd .r-name {
+        font-family: var(--mono);
+        color: var(--blue-hi);
+        font-weight: 500;
+      }
+      .row.cmd .r-name .sec {
+        color: var(--faint);
+        font-size: 12px;
+      }
+      .row.res .r-name {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .r-kind {
+        flex-shrink: 0;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 5px;
+      }
+      .r-kind.cmd {
+        color: var(--blue);
+        background: var(--blue-soft);
+      }
+      .r-kind.res {
+        color: var(--violet);
+        background: var(--violet-soft);
+      }
+      .r-sum {
+        font-size: 14px;
+        color: var(--muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .r-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 9px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--faint);
+      }
+      .r-meta .src {
+        color: var(--muted);
+      }
+      .r-meta .go {
+        margin-left: auto;
+        color: var(--blue);
+        opacity: 0;
+        transition: 0.15s;
+      }
+      .row.res .r-meta .go {
+        color: var(--violet);
+      }
+      .row:hover .go,
+      .row.active .go {
+        opacity: 1;
+      }
+      .dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--border-hi);
+      }
+      .capnote {
+        text-align: center;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--faint);
+        padding: 16px 0;
+      }
+      .empty {
+        text-align: center;
+        padding: 72px 0;
+        color: var(--faint);
+      }
+      .empty .big {
+        font-size: 16px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .empty .hint {
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        margin-top: 46px;
+      }
+      footer .wrap {
+        padding: 22px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--faint);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: space-between;
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 5vh 16px;
+        background: rgba(4, 6, 11, 0.72);
+        backdrop-filter: blur(4px);
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .win {
+        background: var(--surface);
+        border: 1px solid var(--border-hi);
+        border-radius: 16px;
+        max-width: 720px;
+        width: 100%;
+        max-height: 88vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+        animation: pop 0.16s ease-out;
+      }
+      @keyframes pop {
+        from {
+          opacity: 0;
+          transform: translateY(8px) scale(0.99);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .win {
+          animation: none;
+        }
+      }
+      .win-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+        flex-shrink: 0;
+      }
+      .win-kind {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--blue);
+        background: var(--blue-soft);
+        padding: 3px 8px;
+        border-radius: 5px;
+      }
+      .win-title {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .win-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: var(--faint);
+        cursor: pointer;
+        padding: 3px;
+        display: flex;
+      }
+      .win-close:hover {
+        color: var(--text);
+      }
+      .win-body {
+        padding: 24px;
+        overflow-y: auto;
+      }
+      .m-eyebrow {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 6px;
+      }
+      .m-title {
+        font-family: var(--mono);
+        font-size: 20px;
+        color: var(--blue-hi);
+        margin-bottom: 3px;
+      }
+      .m-syn {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        word-break: break-all;
+        margin-bottom: 20px;
+      }
+      .lbl {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin: 0 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .lbl .n {
+        color: var(--faint);
+        opacity: 0.7;
+      }
+      .m-what {
+        font-size: 15px;
+        color: var(--text);
+        margin-bottom: 22px;
+        max-width: 64ch;
+      }
+      .ex-block {
+        margin-bottom: 14px;
+      }
+      .term {
+        position: relative;
+        background: #05070c;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 15px;
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.9;
+        word-break: break-word;
+      }
+      html.day .term {
+        background: #0f1626;
+      }
+      .term .ps {
+        color: var(--ok);
+        user-select: none;
+      }
+      .tok {
+        color: var(--text);
+        padding: 1px 4px;
+        border-radius: 5px;
+        transition:
+          background 0.12s,
+          color 0.12s;
+        cursor: default;
+      }
+      .tok.flag {
+        color: var(--blue-hi);
+      }
+      .tok.hot {
+        background: var(--blue);
+        color: #fff;
+      }
+      .copy {
+        position: absolute;
+        top: 9px;
+        right: 9px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--faint);
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .copy:hover {
+        color: var(--blue);
+        border-color: var(--blue-line);
+      }
+      .copy.done {
+        color: var(--ok);
+        border-color: var(--ok);
+      }
+      .ex-exp {
+        font-size: 13.5px;
+        color: var(--muted);
+        margin: 8px 2px 0;
+      }
+      .brk {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin: 9px 0 0;
+      }
+      .brk-row {
+        display: flex;
+        gap: 13px;
+        align-items: flex-start;
+        padding: 8px 11px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--surface);
+        transition: 0.12s;
+        cursor: default;
+      }
+      .brk-row:hover,
+      .brk-row.hot {
+        border-color: var(--blue-line);
+        background: var(--blue-soft);
+      }
+      .brk-row code {
+        color: var(--blue-hi);
+        font-size: 12.5px;
+        flex-shrink: 0;
+        min-width: 82px;
+      }
+      .brk-row span {
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .flags {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 24px;
+      }
+      .flag-row {
+        display: flex;
+        gap: 13px;
+        align-items: flex-start;
+        padding: 9px 12px;
+        background: var(--surface2);
+        border-radius: 9px;
+      }
+      .flag-row code {
+        color: var(--blue-hi);
+        font-family: var(--mono);
+        font-size: 12.5px;
+        flex-shrink: 0;
+        min-width: 72px;
+      }
+      .flag-row span {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 24px 0;
+      }
+      .learn {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+      }
+      .learn a {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: var(--mono);
+        font-size: 12px;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 8px 13px;
+        transition: 0.15s;
+        color: var(--muted);
+      }
+      .learn a:hover {
+        border-color: var(--border-hi);
+        color: var(--text);
+        background: var(--surface2);
+      }
+      .learn a .ic {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+      }
+      .learn a.src {
+        color: var(--violet);
+      }
+      .learn a.src:hover {
+        border-color: var(--violet);
+        background: var(--violet-soft);
+      }
+      .learn a.yt .ic {
+        color: #ff4d4d;
+      }
+      .learn a.blog .ic {
+        color: var(--blue-hi);
+      }
+      .lic {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--faint);
+        margin-top: 12px;
+        line-height: 1.5;
+      }
+      /* ── accounts, stars, PDF (added) ── */
+      :root {
+        --star: #f5c451;
+        --star-soft: rgba(245, 196, 81, 0.13);
+      }
+      html.day:root {
+        --star: #d99614;
+        --star-soft: rgba(217, 150, 20, 0.12);
+      }
+      .tog.on {
+        border-color: var(--blue-line);
+        color: var(--blue-hi);
+        background: var(--blue-soft);
+      }
+      #savedToggle.on {
+        border-color: var(--star);
+        color: var(--star);
+        background: var(--star-soft);
+      }
+      .acct {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+      .avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, var(--blue), var(--violet));
+        flex-shrink: 0;
+      }
+      .acct-email {
+        color: var(--muted);
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      @media (max-width: 640px) {
+        .acct-email {
+          display: none;
+        }
+      }
+
+      /* star on cards */
+      .r-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .star {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--faint);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.14s;
+        flex-shrink: 0;
+      }
+      .star:hover {
+        color: var(--star);
+        border-color: var(--star);
+        background: var(--star-soft);
+      }
+      .star.on {
+        color: var(--star);
+        border-color: var(--star);
+        background: var(--star-soft);
+      }
+      .star svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      /* auth modal */
+      .win.auth-win {
+        max-width: 380px;
+      }
+      .auth-body {
+        padding: 22px 24px 26px;
+      }
+      .auth-sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 18px;
+        line-height: 1.5;
+      }
+      .btn-google {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: var(--raise);
+        color: var(--text);
+        border: 1px solid var(--border-hi);
+        border-radius: 10px;
+        padding: 11px;
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .btn-google:hover {
+        border-color: var(--blue-line);
+        background: var(--surface2);
+      }
+      .auth-or {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 18px 0;
+        color: var(--faint);
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      .auth-or::before,
+      .auth-or::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .auth-field {
+        display: block;
+        margin-bottom: 13px;
+      }
+      .auth-field span {
+        display: block;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .auth-field input {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 14px;
+        padding: 10px 12px;
+        transition: 0.15s;
+      }
+      .auth-field input:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px var(--blue-soft);
+      }
+      .auth-err {
+        color: #ff7a7a;
+        font-size: 12.5px;
+        min-height: 16px;
+        margin: 2px 0 10px;
+      }
+      .auth-submit {
+        width: 100%;
+        background: var(--blue);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 11px;
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .auth-submit:hover {
+        background: var(--blue-hi);
+      }
+      .auth-submit:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .auth-swap {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .auth-swap button {
+        background: none;
+        border: none;
+        color: var(--blue-hi);
+        cursor: pointer;
+        font-size: 13px;
+        font-family: inherit;
+        padding: 0;
+      }
+      .auth-swap button:hover {
+        text-decoration: underline;
+      }
+
+      /* toast */
+      #toast {
+        position: fixed;
+        left: 50%;
+        bottom: 26px;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--raise);
+        border: 1px solid var(--border-hi);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        padding: 11px 18px;
+        border-radius: 10px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.22s;
+        z-index: 90;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <div class="wrap">
+        <div class="brand"><span class="mk">&gt;_</span>Cyber<b>Search</b></div>
+        <div class="top-right">
+          <span class="stat" id="statLine"></span>
+          <button class="tog" id="savedToggle" title="Show only saved commands">
+            ★ saved <span id="savedCount">0</span>
+          </button>
+          <button class="tog" id="pdfBtn" title="Download saved commands as a PDF cheat sheet">
+            ⤓ PDF
+          </button>
+          <button class="tog" id="themeToggle" aria-label="Toggle theme">
+            <span id="themeLabel">day</span>
+          </button>
+          <span class="acct" id="acct"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <section class="hero">
+        <p class="eyebrow">security &amp; shell command index</p>
+        <h1>Find a command. <span class="g">Understand every flag.</span></h1>
+        <p class="lede">
+          Search thousands of commands and curated write-ups — each with usage
+          examples, a flag-by-flag breakdown, and links to docs, videos, and
+          blogs.
+        </p>
+        <div class="searchbox">
+          <div class="prompt">
+            <svg
+              class="mag"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <input
+              id="q"
+              type="text"
+              autocomplete="off"
+              autofocus
+              placeholder="scan for open ports, dns zone transfer, capture packets…"
+              aria-label="Search"
+            />
+            <button
+              class="dice"
+              id="dice"
+              title="Random command"
+              aria-label="Random command"
+            >
+              <svg
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="3" />
+                <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" />
+                <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" />
+                <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+                <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" />
+                <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" />
+              </svg>
+            </button>
+            <span class="slash" id="slash">/</span>
+          </div>
+        </div>
+        <div class="examples" id="examples"><span class="try">try</span></div>
+      </section>
+
+      <div class="layout">
+        <aside class="rail">
+          <div class="rail-head">
+            <span>filters</span
+            ><button id="clear" style="display: none">clear all</button>
+          </div>
+          <div id="facets"></div>
+        </aside>
+        <div class="main">
+          <div class="toolbar">
+            <p class="countline" id="count"></p>
+            <div class="toolbar-right">
+              <span class="navhint"
+                ><kbd>↑</kbd><kbd>↓</kbd> navigate <kbd>↵</kbd> open</span
+              >
+              <select class="sortsel" id="sort">
+                <option value="relevance">sort: relevance</option>
+                <option value="az">sort: A–Z</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid" id="results"></div>
+          <div class="empty" id="empty" style="display: none">
+            <div class="big">No results</div>
+            <div class="hint">
+              try a tool (nmap), a task (zone transfer), or clear the filters
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="wrap">
+        <span id="footL"></span>
+        <span>metadata + deep links only — no content rehosted</span>
+      </div>
+    </footer>
+
+    <div class="overlay" id="modal">
+      <div class="win">
+        <div class="win-bar">
+          <span class="win-kind" id="winKind">command</span>
+          <span class="win-title" id="winTitle">explain the command</span>
+          <button class="win-close" id="close" aria-label="Close">
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="win-body" id="winBody"></div>
+      </div>
+    </div>
+
+    <div class="overlay" id="authOverlay">
+      <div class="win auth-win">
+        <div class="win-bar">
+          <span class="win-kind" id="authKind">account</span>
+          <span class="win-title" id="authTitle">Welcome back</span>
+          <button class="win-close" id="authClose" aria-label="Close">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="win-body auth-body">
+          <p class="auth-sub" id="authSub">Sign in to reach your saved commands.</p>
+          <button class="btn-google" id="googleBtn">
+            <svg width="17" height="17" viewBox="0 0 48 48">
+              <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.1-3.8 6.6-9.4 6.6-16.1z"/>
+              <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.5 46 24 46z"/>
+              <path fill="#FBBC05" d="M11.8 28.3c-.4-1.3-.7-2.7-.7-4.3s.3-3 .7-4.3v-5.7H4.5C3 17 2 20.4 2 24s1 7 2.5 10z"/>
+              <path fill="#EA4335" d="M24 10.7c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.1 29.9 2 24 2 15.5 2 8.1 6.9 4.5 14l7.3 5.7c1.7-5.2 6.5-9 12.2-9z"/>
+            </svg>
+            Continue with Google
+          </button>
+          <div class="auth-or"><span>or</span></div>
+          <label class="auth-field">
+            <span>Email</span>
+            <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+          </label>
+          <label class="auth-field">
+            <span>Password</span>
+            <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+          </label>
+          <p class="auth-err" id="authErr"></p>
+          <button class="auth-submit" id="authSubmit">Sign in</button>
+          <p class="auth-swap">
+            <span id="authSwapTxt">Don't have an account?</span>
+            <button id="authSwap">Create one</button>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <!-- Fuse.js v7.0.0 (MIT) — vendored locally so the site runs fully offline.
+         Falls back to the CDN only if the local file is missing. -->
+    <script src="./fuse.min.js"></script>
+    <script>
+      window.Fuse ||
+        document.write(
+          '<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"><\/script>'
+        );
+    </script>
+    <script>
+      "use strict";
+      const PAGE_CAP = 150;
+      const $ = (s, r = document) => r.querySelector(s);
+      const esc = (s) =>
+        String(s == null ? "" : s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const debounce = (fn, ms = 90) => {
+        let t;
+        return (...a) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...a), ms);
+        };
+      };
+
+      async function loadIndex() {
+        if (window.__INDEX__) return window.__INDEX__;
+        const r = await fetch("./index.json");
+        if (!r.ok) throw new Error("index.json returned " + r.status);
+        return r.json();
+      }
+
+      const EXAMPLES = [
+        "nmap",
+        "zone transfer",
+        "listening ports",
+        "capture packets",
+        "brute force",
+        "ssh tunnel",
+      ];
+      const FACETS = [
+        {
+          key: "kind",
+          label: "Type",
+          list: (e) => [e.kind],
+          disp: (v) => (v === "command" ? "commands" : "write-ups"),
+        },
+        {
+          key: "categories",
+          label: "Category",
+          list: (e) => e.categories || [],
+        },
+        { key: "difficulty", label: "Difficulty", list: (e) => [e.difficulty] },
+        { key: "os", label: "Platform", list: (e) => e.os || [] },
+      ];
+      const FUSE_OPTS = {
+        threshold: 0.35,
+        ignoreLocation: true,
+        includeScore: true,
+        keys: [
+          { name: "title", weight: 3 },
+          { name: "command.tool", weight: 3 },
+          { name: "tags", weight: 2 },
+          { name: "summary", weight: 2 },
+          { name: "keywords", weight: 1 },
+          { name: "command.flags.flag", weight: 1 },
+        ],
+      };
+      const S = {
+        all: [],
+        sources: [],
+        fuse: null,
+        filters: {},
+        q: "",
+        sort: "relevance",
+        rows: [],
+        view: [],
+        active: -1,
+        savedOnly: false,
+      };
+
+      const STAR_OUTLINE =
+        '<svg viewBox="0 0 20 20" fill="none"><path d="M10 2.5l2.2 4.9 5.3.5-4 3.6 1.2 5.2L10 14.6 5.3 16.7l1.2-5.2-4-3.6 5.3-.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+      const STAR_FILL =
+        '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5l2.2 4.9 5.3.5-4 3.6 1.2 5.2L10 14.6 5.3 16.7l1.2-5.2-4-3.6 5.3-.5z"/></svg>';
+
+      function hl(text, q) {
+        text = esc(text);
+        if (!q) return text;
+        const terms = q
+          .trim()
+          .split(/\s+/)
+          .filter((t) => t.length > 1)
+          .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+        if (!terms.length) return text;
+        return text.replace(
+          new RegExp("(" + terms.join("|") + ")", "ig"),
+          "<mark>$1</mark>",
+        );
+      }
+      function passes(e) {
+        return FACETS.every((f) => {
+          const sel = S.filters[f.key];
+          if (!sel || !sel.size) return true;
+          return f.list(e).some((v) => sel.has(v));
+        });
+      }
+      function nameOf(e) {
+        return (
+          (e.kind === "command" && e.command && e.command.tool) || e.title || ""
+        );
+      }
+      function currentResults() {
+        let list;
+        if (!S.q.trim()) list = S.all.filter(passes);
+        else
+          list = S.fuse
+            .search(S.q)
+            .filter((r) => passes(r.item))
+            .map((r) => r.item);
+        if (S.savedOnly) list = list.filter((e) => Bookmarks.has(e.id));
+        if (S.sort === "az")
+          list = list
+            .slice()
+            .sort((a, b) => nameOf(a).localeCompare(nameOf(b)));
+        else if (!S.q.trim())
+          list = list
+            .slice()
+            .sort((a, b) => (b.rank_score || 0) - (a.rank_score || 0));
+        return list;
+      }
+      const srcName = (id) => {
+        const s = S.sources.find((x) => x.id === id);
+        return s ? s.name : id;
+      };
+
+      function card(e) {
+        const cmd = e.kind === "command",
+          q = S.q;
+        const name = cmd
+          ? `<span class="r-name">${hl(nameOf(e), q)}<span class="sec">(1)</span></span>`
+          : `<span class="r-name">${hl(e.title, q)}</span>`;
+        const kind = cmd
+          ? `<span class="r-kind cmd">command</span>`
+          : `<span class="r-kind res">write-up</span>`;
+        const on = Bookmarks.has(e.id);
+        const star = `<span class="star${on ? " on" : ""}" role="button" tabindex="0" data-star="${esc(e.id)}" aria-label="${on ? "Remove from saved" : "Save"}" title="${on ? "Remove from saved" : "Save this command"}">${on ? STAR_FILL : STAR_OUTLINE}</span>`;
+        const tags = (e.tags || [])
+          .slice(0, 4)
+          .map((t) => esc(t))
+          .join('<span class="dot"></span>');
+        const meta = cmd
+          ? `<span>${esc((e.categories || [])[0] || "")}</span><span class="dot"></span><span>${esc(e.difficulty || "")}</span><span class="go">explain →</span>`
+          : `<span class="src">${esc(srcName(e.source_id))}</span><span class="dot"></span><span>${tags}</span><span class="go">open ↗</span>`;
+        return `<button class="row ${cmd ? "cmd" : "res"}" data-id="${esc(e.id)}">
+    <div class="r-head">${name}<span class="r-right">${kind}${star}</span></div>
+    <div class="r-sum">${hl(e.summary, q)}</div>
+    <div class="r-meta">${meta}</div></button>`;
+      }
+      function setActive(i) {
+        if (!S.rows.length) {
+          S.active = -1;
+          return;
+        }
+        if (i < 0) i = 0;
+        if (i >= S.rows.length) i = S.rows.length - 1;
+        if (S.active >= 0 && S.rows[S.active])
+          S.rows[S.active].classList.remove("active");
+        S.active = i;
+        const el = S.rows[i];
+        el.classList.add("active");
+        el.scrollIntoView({ block: "nearest" });
+      }
+      function renderResults() {
+        const res = currentResults();
+        S.view = res;
+        const bits = [];
+        if (S.q.trim()) bits.push(`"${S.q.trim()}"`);
+        Object.values(S.filters).forEach((set) => {
+          if (set && set.size) set.forEach((v) => bits.push(v));
+        });
+        $("#count").innerHTML =
+          `<span class="tick">▸</span> ${res.length.toLocaleString()} result${res.length === 1 ? "" : "s"}${bits.length ? " · " + bits.join(" · ") : ""}`;
+        const box = $("#results");
+        box.innerHTML =
+          res.slice(0, PAGE_CAP).map(card).join("") +
+          (res.length > PAGE_CAP
+            ? `<p class="capnote">showing first ${PAGE_CAP} of ${res.length.toLocaleString()} — refine your search</p>`
+            : "");
+        $("#empty").style.display = res.length ? "none" : "block";
+        S.rows = Array.from(box.querySelectorAll(".row"));
+        S.active = -1;
+        S.rows.forEach((b, i) => {
+          b.onclick = () => pick(b.dataset.id);
+          b.addEventListener("mouseenter", () => {
+            if (S.active >= 0 && S.rows[S.active])
+              S.rows[S.active].classList.remove("active");
+            S.active = i;
+            b.classList.add("active");
+          });
+          b.addEventListener("mouseleave", () => b.classList.remove("active"));
+        });
+        box.querySelectorAll(".star").forEach((s) => {
+          const toggle = (ev) => {
+            ev.stopPropagation();
+            ev.preventDefault();
+            const nowOn = Bookmarks.toggle(s.dataset.star);
+            s.classList.toggle("on", nowOn);
+            s.innerHTML = nowOn ? STAR_FILL : STAR_OUTLINE;
+            s.setAttribute("aria-label", nowOn ? "Remove from saved" : "Save");
+          };
+          s.addEventListener("click", toggle);
+          s.addEventListener("keydown", (ev) => {
+            if (ev.key === "Enter" || ev.key === " ") toggle(ev);
+          });
+        });
+      }
+      function renderFacets() {
+        const host = $("#facets");
+        host.innerHTML = "";
+        FACETS.forEach((f) => {
+          const others = S.all.filter((e) =>
+            FACETS.every((g) => {
+              if (g.key === f.key) return true;
+              const sel = S.filters[g.key];
+              return !sel || !sel.size || g.list(e).some((v) => sel.has(v));
+            }),
+          );
+          const counts = {};
+          others.forEach((e) =>
+            f.list(e).forEach((v) => {
+              if (v) counts[v] = (counts[v] || 0) + 1;
+            }),
+          );
+          const vals = Object.keys(counts).sort(
+            (a, b) => counts[b] - counts[a],
+          );
+          if (!vals.length) return;
+          const g = document.createElement("div");
+          g.className = "fgroup";
+          g.innerHTML =
+            `<p>${esc(f.label)}</p>` +
+            vals
+              .map((v) => {
+                const on = S.filters[f.key] && S.filters[f.key].has(v);
+                const disp = f.disp ? f.disp(v) : v;
+                return `<button class="frow ${on ? "on" : ""}" data-k="${esc(f.key)}" data-v="${esc(v)}">
+        <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><path d="M5 13l4 4L19 7"/></svg></span>
+        <span class="fname">${esc(disp)}</span><span class="fcount">${counts[v]}</span></button>`;
+              })
+              .join("");
+          host.appendChild(g);
+        });
+        host
+          .querySelectorAll(".frow")
+          .forEach(
+            (b) => (b.onclick = () => toggleFilter(b.dataset.k, b.dataset.v)),
+          );
+      }
+      function toggleFilter(k, v) {
+        const set = S.filters[k] || (S.filters[k] = new Set());
+        set.has(v) ? set.delete(v) : set.add(v);
+        $("#clear").style.display = Object.values(S.filters).some(
+          (s) => s && s.size,
+        )
+          ? ""
+          : "none";
+        renderFacets();
+        renderResults();
+      }
+      function pick(id) {
+        const e = S.all.find((x) => x.id === id);
+        if (!e) return;
+        e.kind === "command"
+          ? explain(e)
+          : window.open(e.url, "_blank", "noopener");
+      }
+
+      function explain(e) {
+        const cmd = e.command || {},
+          src = S.sources.find((s) => s.id === e.source_id);
+        const tool = cmd.tool || e.title || "";
+        const isFlag = (t) => /^-/.test(t);
+        const examples = cmd.examples || [];
+        const rawCmds = [];
+        const exHTML = examples
+          .map((ex, ei) => {
+            rawCmds.push(ex.command || "");
+            let term;
+            if (ex.breakdown && ex.breakdown.length) {
+              term =
+                `<span class="ps">$ </span>` +
+                ex.breakdown
+                  .map(
+                    (b, ti) =>
+                      `<span class="tok ${isFlag(b.token) ? "flag" : ""}" data-i="${ei}_${ti}">${esc(b.token)}</span>`,
+                  )
+                  .join(" ");
+            } else {
+              term = `<span class="ps">$ </span>${esc(ex.command)}`;
+            }
+            const brk =
+              ex.breakdown && ex.breakdown.length
+                ? `<div class="brk">` +
+                  ex.breakdown
+                    .map(
+                      (b, ti) =>
+                        `<div class="brk-row" data-i="${ei}_${ti}"><code>${esc(b.token)}</code><span>${esc(b.role)}</span></div>`,
+                    )
+                    .join("") +
+                  `</div>`
+                : "";
+            return `<div class="ex-block">
+      <div class="term"><button class="copy" data-c="${ei}"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>copy</button>${term}</div>
+      ${ex.explanation ? `<p class="ex-exp">${esc(ex.explanation)}</p>` : ""}
+      ${brk}
+    </div>`;
+          })
+          .join("");
+        const flags = (cmd.flags || [])
+          .map(
+            (f) =>
+              `<div class="flag-row"><code>${esc(f.flag)}${f.arg ? " " + esc(f.arg) : ""}</code><span>${esc(f.meaning)}</span></div>`,
+          )
+          .join("");
+
+        const yt = `https://www.youtube.com/results?search_query=${encodeURIComponent(tool + " command tutorial")}`;
+        const blog = `https://duckduckgo.com/?q=${encodeURIComponent(tool + " command guide examples")}`;
+        const srcUrl = e.url;
+
+        $("#winKind").textContent = tool;
+        $("#winBody").innerHTML = `
+    <p class="m-eyebrow">${esc((e.categories || []).join(" · "))} · ${esc(e.difficulty || "")}</p>
+    <div class="m-title">${esc(e.title)}</div>
+    <div class="m-syn">${esc(cmd.synopsis || "")}</div>
+    <p class="lbl">what it does</p><p class="m-what">${esc(e.summary)}</p>
+    ${exHTML ? `<p class="lbl">usage <span class="n">${examples.length} example${examples.length === 1 ? "" : "s"} · hover a token</span></p>${exHTML}` : ""}
+    ${flags ? `<p class="lbl" style="margin-top:22px">common flags</p><div class="flags">${flags}</div>` : ""}
+    <div class="divider"></div>
+    <p class="lbl">learn more</p>
+    <div class="learn">
+      <a class="src" href="${esc(srcUrl)}" target="_blank" rel="noopener"><svg class="ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.5A5.5 5.5 0 0117.5 1H21v3.5A5.5 5.5 0 0115.5 10H12zM12 6.5V22"/><path d="M12 10H8.5A5.5 5.5 0 013 4.5V1h3.5A5.5 5.5 0 0112 6.5"/></svg>${esc((src && src.name) || "source docs")}</a>
+      <a class="yt" href="${yt}" target="_blank" rel="noopener"><svg class="ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>YouTube tutorials</a>
+      <a class="blog" href="${blog}" target="_blank" rel="noopener"><svg class="ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h11a2 2 0 012 2v14H6a2 2 0 01-2-2z"/><path d="M8 8h7M8 12h7M8 16h4"/></svg>Articles &amp; blogs</a>
+    </div>
+    ${src && src.license_note ? `<p class="lic">${esc(src.license_note)}</p>` : ""}`;
+
+        const wb = $("#winBody");
+        // copy buttons
+        wb.querySelectorAll(".copy").forEach((btn) => {
+          btn.onclick = async (ev) => {
+            ev.stopPropagation();
+            try {
+              await navigator.clipboard.writeText(
+                rawCmds[+btn.dataset.c] || "",
+              );
+            } catch (_) {}
+            btn.classList.add("done");
+            btn.innerHTML =
+              '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>copied';
+            setTimeout(() => {
+              btn.classList.remove("done");
+              btn.innerHTML =
+                '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>copy';
+            }, 1300);
+          };
+        });
+        // token <-> breakdown linked highlight (scoped per example)
+        const setHot = (i, on) =>
+          wb
+            .querySelectorAll(`[data-i="${i}"]`)
+            .forEach((el) => el.classList.toggle("hot", on));
+        wb.querySelectorAll("[data-i]").forEach((el) => {
+          const i = el.dataset.i;
+          el.addEventListener("mouseenter", () => setHot(i, true));
+          el.addEventListener("mouseleave", () => setHot(i, false));
+        });
+        $("#modal").classList.add("show");
+      }
+      function closeM() {
+        $("#modal").classList.remove("show");
+      }
+
+      function initExamples() {
+        const host = $("#examples");
+        EXAMPLES.forEach((x) => {
+          const b = document.createElement("button");
+          b.className = "ex";
+          b.textContent = x;
+          b.onclick = () => {
+            $("#q").value = x;
+            S.q = x;
+            renderResults();
+            $("#q").focus();
+          };
+          host.appendChild(b);
+        });
+      }
+      function randomCmd() {
+        const cmds = S.all.filter((e) => e.kind === "command");
+        if (cmds.length) explain(cmds[Math.floor(Math.random() * cmds.length)]);
+      }
+
+      /* ── saved commands (local-first; syncs to Firebase when signed in) ── */
+      const Bookmarks = (() => {
+        const KEY = "cs.saved";
+        let set = new Set();
+        try {
+          set = new Set(JSON.parse(localStorage.getItem(KEY) || "[]"));
+        } catch (e) {}
+        const persist = () => {
+          try {
+            localStorage.setItem(KEY, JSON.stringify([...set]));
+          } catch (e) {}
+          updateSavedCount();
+          if (window.CyberAuth && window.CyberAuth.user)
+            window.CyberAuth.saveBookmarks([...set]);
+        };
+        return {
+          has: (id) => set.has(id),
+          list: () => [...set],
+          count: () => set.size,
+          toggle(id) {
+            set.has(id) ? set.delete(id) : set.add(id);
+            persist();
+            return set.has(id);
+          },
+          replace(ids) {
+            set = new Set(ids);
+            persist();
+            if (typeof renderResults === "function") renderResults();
+          },
+        };
+      })();
+      window.Bookmarks = Bookmarks;
+
+      function updateSavedCount() {
+        const el = $("#savedCount");
+        if (el) el.textContent = Bookmarks.count();
+      }
+
+      let toastTimer;
+      function toast(msg) {
+        const t = $("#toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+      }
+
+      /* ── account UI (Firebase-backed; degrades to local-only) ── */
+      function renderAccount() {
+        const host = $("#acct");
+        host.innerHTML = "";
+        const auth = window.CyberAuth;
+        if (auth && auth.user) {
+          const initial = (auth.user.email || "?")[0].toUpperCase();
+          const av = document.createElement("span");
+          av.className = "avatar";
+          av.textContent = initial;
+          const em = document.createElement("span");
+          em.className = "acct-email";
+          em.textContent = auth.user.email || "signed in";
+          const out = document.createElement("button");
+          out.className = "tog";
+          out.textContent = "sign out";
+          out.onclick = () => auth.signOut();
+          host.append(av, em, out);
+        } else {
+          const b = document.createElement("button");
+          b.className = "tog";
+          b.textContent = "sign in";
+          b.onclick = openAuth;
+          host.appendChild(b);
+        }
+      }
+
+      /* ── auth modal ── */
+      let authMode = "in";
+      function openAuth() {
+        authMode = "in";
+        syncAuthModal();
+        $("#authOverlay").classList.add("show");
+        setTimeout(() => $("#authEmail").focus(), 40);
+      }
+      function closeAuth() {
+        $("#authOverlay").classList.remove("show");
+        $("#authErr").textContent = "";
+      }
+      function syncAuthModal() {
+        const up = authMode === "up";
+        $("#authTitle").textContent = up ? "Create account" : "Welcome back";
+        $("#authSub").textContent = up
+          ? "Save commands and sync them across your devices."
+          : "Sign in to reach your saved commands.";
+        $("#authSubmit").textContent = up ? "Create account" : "Sign in";
+        $("#authSwapTxt").textContent = up
+          ? "Already have an account?"
+          : "Don't have an account?";
+        $("#authSwap").textContent = up ? "Sign in" : "Create one";
+        $("#authPass").setAttribute(
+          "autocomplete",
+          up ? "new-password" : "current-password",
+        );
+        $("#authErr").textContent = "";
+      }
+      async function doEmailAuth() {
+        const auth = window.CyberAuth;
+        if (!auth) {
+          $("#authErr").textContent =
+            "Accounts aren't configured yet (add your Firebase keys).";
+          return;
+        }
+        const email = $("#authEmail").value.trim(),
+          pass = $("#authPass").value;
+        if (!email || !pass) {
+          $("#authErr").textContent = "Enter an email and password.";
+          return;
+        }
+        $("#authSubmit").disabled = true;
+        try {
+          await (authMode === "up"
+            ? auth.signUp(email, pass)
+            : auth.signIn(email, pass));
+        } catch (err) {
+          $("#authErr").textContent = ((err && err.message) || "Authentication failed")
+            .replace("Firebase: ", "")
+            .replace(/\(auth.*\)\.?/, "")
+            .trim();
+        } finally {
+          $("#authSubmit").disabled = false;
+        }
+      }
+      async function doGoogleAuth() {
+        const auth = window.CyberAuth;
+        if (!auth) {
+          $("#authErr").textContent =
+            "Accounts aren't configured yet (add your Firebase keys).";
+          return;
+        }
+        try {
+          await auth.signInGoogle();
+        } catch (err) {
+          $("#authErr").textContent = ((err && err.message) || "Authentication failed")
+            .replace("Firebase: ", "")
+            .trim();
+        }
+      }
+
+      /* ── PDF cheat sheet (client-side via jsPDF) ── */
+      function exportPDF() {
+        const list = Bookmarks.list()
+          .map((id) => S.all.find((e) => e.id === id))
+          .filter(Boolean);
+        if (!list.length) {
+          toast("Star some commands first — then export.");
+          return;
+        }
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+          toast("PDF library didn't load — check your connection.");
+          return;
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: "pt", format: "a4" });
+        const W = doc.internal.pageSize.getWidth();
+        const H = doc.internal.pageSize.getHeight();
+        const M = 48;
+        let y = M;
+        const BLUE = [76, 141, 255],
+          DARK = [24, 30, 44],
+          GREY = [120, 132, 155];
+        const write = (txt, o = {}) => {
+          const size = o.size || 10;
+          doc.setFont(o.font || "helvetica", o.style || "normal");
+          doc.setFontSize(size);
+          doc.setTextColor(...(o.color || DARK));
+          const x = o.x || M;
+          doc.splitTextToSize(txt, o.maxw || W - x - M).forEach((ln) => {
+            if (y > H - M) {
+              doc.addPage();
+              y = M;
+            }
+            doc.text(ln, x, y);
+            y += size + 4;
+          });
+        };
+        doc.setFillColor(...DARK);
+        doc.rect(0, 0, W, 72, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.setTextColor(...BLUE);
+        doc.text("CyberSearch", M, 40);
+        doc.setFont("courier", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(200, 210, 225);
+        doc.text("saved commands cheat sheet", M, 58);
+        doc.setTextColor(150, 162, 180);
+        doc.text(
+          new Date().toISOString().slice(0, 10) + "  ·  " + list.length + " items",
+          W - M,
+          58,
+          { align: "right" },
+        );
+        y = 100;
+        list.forEach((e) => {
+          if (y > H - 110) {
+            doc.addPage();
+            y = M;
+          }
+          const isCmd = e.kind === "command";
+          doc.setFont("courier", "bold");
+          doc.setFontSize(13);
+          doc.setTextColor(...BLUE);
+          doc.text(
+            (isCmd && e.command && e.command.tool) || e.title || "",
+            M,
+            y,
+          );
+          y += 18;
+          write(e.summary || "", { size: 10, color: DARK });
+          if (isCmd && e.command) {
+            const c = e.command;
+            if (c.synopsis)
+              write("usage: " + c.synopsis, {
+                font: "courier",
+                size: 9,
+                color: GREY,
+              });
+            (c.flags || []).slice(0, 6).forEach((f) => {
+              write(
+                (f.flag + (f.arg ? " " + f.arg : "")) + "  —  " + f.meaning,
+                { font: "courier", size: 9, color: DARK, x: M + 12 },
+              );
+            });
+            const ex = (c.examples || [])[0];
+            if (ex)
+              write("$ " + ex.command, {
+                font: "courier",
+                size: 9.5,
+                color: BLUE,
+              });
+          } else {
+            write(srcName(e.source_id) + "  ·  " + e.url, {
+              size: 9,
+              color: GREY,
+            });
+          }
+          y += 8;
+          doc.setDrawColor(224, 230, 240);
+          doc.line(M, y, W - M, y);
+          y += 14;
+        });
+        doc.save("cybersearch-saved.pdf");
+        toast(
+          "Exported " +
+            list.length +
+            " command" +
+            (list.length === 1 ? "" : "s") +
+            " to PDF",
+        );
+      }
+
+      async function main() {
+        try {
+          const idx = await loadIndex();
+          S.all = idx.entries || [];
+          S.sources = idx.sources || [];
+          S.fuse = new Fuse(S.all, FUSE_OPTS);
+          const c = idx.counts || {};
+          $("#statLine").textContent =
+            `${(c.commands || 0).toLocaleString()} commands · ${(c.resources || 0).toLocaleString()} write-ups · ${c.sources || 0} sources`;
+          $("#footL").textContent =
+            `schema ${idx.schema_version} · ${(c.entries || 0).toLocaleString()} entries · built ${(idx.generated_at || "").slice(0, 10)}`;
+          initExamples();
+          renderFacets();
+          renderResults();
+          $("#q").addEventListener(
+            "input",
+            debounce(() => {
+              S.q = $("#q").value;
+              renderResults();
+            }),
+          );
+          $("#sort").addEventListener("change", (e) => {
+            S.sort = e.target.value;
+            renderResults();
+          });
+          $("#dice").addEventListener("click", randomCmd);
+          $("#clear").addEventListener("click", () => {
+            S.filters = {};
+            $("#clear").style.display = "none";
+            renderFacets();
+            renderResults();
+          });
+
+          // saved / account / auth / pdf
+          updateSavedCount();
+          renderAccount();
+          $("#savedToggle").addEventListener("click", () => {
+            S.savedOnly = !S.savedOnly;
+            $("#savedToggle").classList.toggle("on", S.savedOnly);
+            renderResults();
+          });
+          $("#pdfBtn").addEventListener("click", exportPDF);
+          $("#authClose").addEventListener("click", closeAuth);
+          $("#authOverlay").addEventListener("click", (e) => {
+            if (e.target.id === "authOverlay") closeAuth();
+          });
+          $("#authSubmit").addEventListener("click", doEmailAuth);
+          $("#googleBtn").addEventListener("click", doGoogleAuth);
+          $("#authSwap").addEventListener("click", () => {
+            authMode = authMode === "in" ? "up" : "in";
+            syncAuthModal();
+          });
+          $("#authEmail").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              $("#authPass").focus();
+            }
+          });
+          $("#authPass").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              doEmailAuth();
+            }
+          });
+        } catch (err) {
+          $("#results").innerHTML =
+            `<div class="row" style="cursor:default"><div class="r-name" style="color:var(--blue-hi)">Couldn't load the index.</div><div class="r-sum" style="margin-top:6px">${esc(err.message)}. Serve this folder over HTTP (cd site &amp;&amp; python -m http.server), or open the standalone build.</div></div>`;
+          $("#statLine").textContent = "error";
+        }
+      }
+
+      $("#close").onclick = closeM;
+      $("#modal").onclick = (e) => {
+        if (e.target.id === "modal") closeM();
+      };
+      document.addEventListener("keydown", (e) => {
+        if ($("#authOverlay").classList.contains("show")) {
+          if (e.key === "Escape") closeAuth();
+          return;
+        }
+        const modalOpen = $("#modal").classList.contains("show");
+        if (modalOpen) {
+          if (e.key === "Escape") closeM();
+          return;
+        }
+        if (e.key === "/" && document.activeElement !== $("#q")) {
+          e.preventDefault();
+          $("#q").focus();
+          return;
+        }
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setActive(S.active + 1);
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setActive(S.active - 1);
+        } else if (e.key === "Enter" && S.active >= 0 && S.rows[S.active]) {
+          S.rows[S.active].click();
+        } else if (e.key === "Escape") {
+          if ($("#q").value) {
+            $("#q").value = "";
+            S.q = "";
+            renderResults();
+          }
+        }
+      });
+      const root = document.documentElement;
+      $("#themeToggle").onclick = () => {
+        const day = !root.classList.contains("day");
+        root.classList.toggle("day", day);
+        $("#themeLabel").textContent = day ? "night" : "day";
+      };
+
+      // Registered synchronously so a returning (already-signed-in) user is
+      // caught even if Firebase resolves before the index finishes loading.
+      window.addEventListener("cs-auth", () => {
+        renderAccount();
+        if (window.CyberAuth && window.CyberAuth.user) {
+          closeAuth();
+          toast("Signed in");
+        }
+      });
+
+      main();
+    </script>
+
+    <!-- jsPDF (MIT) — vendored locally so PDF export works offline. -->
+    <script src="./jspdf.umd.min.js"></script>
+
+    <!--
+      Firebase config. These web keys are NOT secret — they identify the
+      project and are meant to ship in client code; access is controlled by
+      Firebase Security Rules, not by hiding the key. To use your own project:
+      Firebase console → Project settings → "Your apps" → SDK setup & config.
+    -->
+    <script>
+      window.FIREBASE_CONFIG = {
+        apiKey: "AIzaSyD8Ypz5Drk1LGqo2utVtaEhp6kGosUx4WI",
+        authDomain: "cyber-search-3a6a6.firebaseapp.com",
+        projectId: "cyber-search-3a6a6",
+        appId: "1:381545098234:web:a9ce83eb9750676fe41243",
+      };
+    </script>
+    <script type="module">
+      const cfg = window.FIREBASE_CONFIG || {};
+      if (!cfg.apiKey) {
+        console.info(
+          "[CyberSearch] Firebase not configured — accounts disabled, local stars + PDF still work.",
+        );
+      } else {
+        const { initializeApp } = await import(
+          "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+        );
+        const {
+          getAuth,
+          onAuthStateChanged,
+          signInWithEmailAndPassword,
+          createUserWithEmailAndPassword,
+          signOut,
+          GoogleAuthProvider,
+          signInWithPopup,
+        } = await import(
+          "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+        );
+        const { getFirestore, doc, getDoc, setDoc } = await import(
+          "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+        );
+
+        const app = initializeApp(cfg);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        window.CyberAuth = {
+          user: null,
+          signUp: (e, p) => createUserWithEmailAndPassword(auth, e, p),
+          signIn: (e, p) => signInWithEmailAndPassword(auth, e, p),
+          signInGoogle: () => signInWithPopup(auth, provider),
+          signOut: () => signOut(auth),
+          async saveBookmarks(ids) {
+            if (!this.user) return;
+            try {
+              await setDoc(
+                doc(db, "users", this.user.uid),
+                { saved: ids },
+                { merge: true },
+              );
+            } catch (err) {
+              console.warn("bookmark sync failed", err);
+            }
+          },
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+          window.CyberAuth.user = user
+            ? { uid: user.uid, email: user.email }
+            : null;
+          if (user) {
+            // Merge cloud + local saved commands, then push the union back up.
+            try {
+              const snap = await getDoc(doc(db, "users", user.uid));
+              const cloud = (snap.exists() && snap.data().saved) || [];
+              const local = window.Bookmarks ? window.Bookmarks.list() : [];
+              const union = Array.from(new Set([...cloud, ...local]));
+              if (window.Bookmarks) window.Bookmarks.replace(union);
+              await window.CyberAuth.saveBookmarks(union);
+            } catch (err) {
+              console.warn("merge failed", err);
+            }
+          }
+          window.dispatchEvent(new Event("cs-auth"));
+        });
+      }
+    </script>
+  </body>
+</html>
