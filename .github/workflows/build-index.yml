@@ -1,12 +1,13 @@
 name: Build index & deploy
 
-# Keeps the search index fresh automatically (no manual effort) and publishes
-# the static site + index.json to GitHub Pages.
+# Publishes the static site + index.json to GitHub Pages.
+# The index is rebuilt on each run, but we NEVER publish a smaller index than
+# the one committed to the repo: a fresh build is only used if it has at least
+# as many entries as the committed full build (live feeds only expose recent
+# posts, so a CI rebuild alone is much smaller than the deep sitemap build).
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -38,10 +39,31 @@ jobs:
         working-directory: indexer
         run: python test_pipeline.py
 
-      - name: Build index (live, with sample fallback)
+      - name: Build index (keep the larger of committed vs fresh)
         run: |
-          python indexer/indexer.py --pretty --out site/index.json \
-            || python indexer/indexer.py --sample --pretty --out site/index.json
+          cp site/index.json site/index.committed.json
+          ( python indexer/indexer.py --pretty --out site/index.fresh.json \
+            || python indexer/indexer.py --sample --pretty --out site/index.fresh.json ) || true
+          python - <<'PY'
+          import json, os, shutil
+          def count(p):
+              try:
+                  return json.load(open(p))["counts"]["entries"]
+              except Exception:
+                  return -1
+          committed = count("site/index.committed.json")
+          fresh = count("site/index.fresh.json")
+          print(f"committed={committed} fresh={fresh}")
+          if fresh >= committed and fresh > 0:
+              shutil.move("site/index.fresh.json", "site/index.json")
+              print(f"Using fresh build ({fresh} entries)")
+          else:
+              shutil.move("site/index.committed.json", "site/index.json")
+              print(f"Keeping committed build ({committed} entries) — fresh was smaller")
+          for tmp in ("site/index.fresh.json", "site/index.committed.json"):
+              if os.path.exists(tmp):
+                  os.remove(tmp)
+          PY
 
       - name: Validate index against schema
         run: |
